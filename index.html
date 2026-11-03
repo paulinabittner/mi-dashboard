@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel gerencial</title>
+<style>
+  :root{
+    --text-primary:#1f1f1d; --text-secondary:#6b6a65;
+    --text-success:#0f7a55; --text-danger:#b3261e; --text-warning:#8a5a00;
+    --bg-success:#e3f4ec; --bg-danger:#fbe9e8; --bg-warning:#fcf1d9;
+    --surface-1:#f1f0ec; --surface-2:#ffffff; --border:rgba(0,0,0,0.12);
+    --page:#faf9f5; --radius:8px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --text-primary:#ecebe6; --text-secondary:#a3a198;
+      --text-success:#5fd3a2; --text-danger:#ff8a82; --text-warning:#f0c35a;
+      --bg-success:#13352a; --bg-danger:#3d1a18; --bg-warning:#3a2e10;
+      --surface-1:#262624; --surface-2:#1a1a19; --border:rgba(255,255,255,0.14);
+      --page:#141413;
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--page); color:var(--text-primary); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.4; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:720px; margin:0 auto; padding:16px;}
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap;}
+  canvas{max-width:100%;}
+  .g-row{display:flex; align-items:stretch; border-top:0.5px solid var(--border);}
+  .g-label{width:104px; flex:none; padding:0 6px 0 0; display:flex; align-items:center; min-width:0; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .g-track{position:relative; flex:1; height:34px;}
+  .g-days{flex:1; display:grid; grid-template-columns:repeat(14,minmax(0,1fr));}
+  .g-days div{text-align:center; font-size:11px; color:var(--text-secondary); padding:1px 0;}
+  .g-bg{position:absolute; top:0; bottom:0;}
+  .g-sec{margin:6px 0 2px; padding:4px 8px; border-radius:6px; background:var(--surface-1); font-size:11px; font-weight:500; color:var(--text-secondary);}
+  .g-bar{position:absolute; top:6px; height:22px; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:500; line-height:1;}
+  .seg{display:flex; align-items:center; justify-content:center; text-align:center; padding:0 8px; font-size:13px; font-weight:500; line-height:1.25;}
+  .seg-s{padding:0 6px; font-size:12px; line-height:1.2;}
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1 class="sr-only">Panel gerencial de una metalmecánica con precios de acero, inox y galvanizado, costo por kg procesado, entregas a tiempo, causas de incumplimiento, eficiencia con OEE, mermas, no conformidades, toneladas procesadas y productividad por dotación, uso de áreas productivas, calendario Gantt productivo de dos semanas, alertas y personas.</h1>
+<div style="padding:0.5rem 0;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div>
+      <p style="font-size:16px; font-weight:500; margin:0;">Panel gerencial</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:0;">Octubre 2026 · Acero e inox · Datos de ejemplo</p>
+    </div>
+    <span style="font-size:12px; padding:4px 10px; border-radius:var(--radius); background:var(--bg-warning); color:var(--text-warning);">7 alertas</span>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Precio de insumos</p>
+  <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Acero carbono</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$1.185/kg</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+6,2% vs agosto</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Inox 304</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$4.350/kg</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+9,1% vs agosto</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px; grid-column:span 2;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Galvanizado</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$520/kg</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+3,0% vs agosto</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Costo de producción por kg procesado</p>
+  <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Acero procesado</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$2.140/kg</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+4,4% vs presupuesto</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Inox procesado</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$5.950/kg</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+7,8% vs presupuesto</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Conversión acero</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$955/kg</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">Costo sin material</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Conversión inox</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$1.600/kg</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">Costo sin material</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 6px;">Composición del costo por kg</p>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 14px; margin:0 0 6px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#2a78d6;"></span>Material</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#eb6834;"></span>Mano de obra</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#1baf7a;"></span>Energía y gas</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#eda100;"></span>Consumibles</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#e87ba4;"></span>Terminación</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#6250d6;"></span>Indirectos</span>
+  </div>
+  <div style="position:relative; width:100%; height:150px; margin-bottom:6px;">
+    <canvas id="costChart" role="img" aria-label="Barras horizontales apiladas del costo por kg procesado. Acero: 2.140 pesos, material 1.185. Inox: 5.950 pesos, material 4.350.">Acero por kg: material 1185, mano de obra 380, energía 90, consumibles 70, terminación (galvanizado) 215, indirectos 200. Inox por kg: material 4350, mano de obra 780, energía 140, consumibles 260, terminación (decapado y pasivado) 180, indirectos 240.</canvas>
+  </div>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px;">Terminación: galvanizado en acero, decapado y pasivado en inox. El material pesa 55% del costo en acero y 73% en inox.</p>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Variación de insumos (base ene = 100)</p>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 6px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px solid #2a78d6;"></span>Acero</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px solid #1baf7a;"></span>Inox 304</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px dashed #eb6834;"></span>Galvanizado</span>
+  </div>
+  <div style="position:relative; width:100%; height:170px; margin-bottom:16px;">
+    <canvas id="insumosChart" role="img" aria-label="Líneas del índice de precio de enero a octubre. Inox sube de 100 a 119, acero de 100 a 112 y galvanizado de 100 a 106.">Índice acero: 100, 101, 103, 102, 105, 107, 108, 110, 111, 112. Índice inox: 100, 102, 105, 104, 108, 111, 113, 115, 117, 119. Índice galvanizado: 100, 100, 101, 102, 102, 103, 104, 105, 105, 106.</canvas>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Entregas a tiempo</p>
+  <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Cumplimiento</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">91,5%</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">Meta 95%</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Desviación vs meta</p>
+      <p style="font-size:22px; font-weight:500; margin:0; color:var(--text-danger);">-3,5 pts</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">3 meses bajo meta</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Atraso promedio</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">2,8 días</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+0,6 días vs agosto</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Órdenes atrasadas</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">14 de 164</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">8,5% del mes</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Razones de incumplimiento: externo vs interno</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 12px;">Órdenes atrasadas de octubre (14). El porcentaje es sobre el total de órdenes atrasadas y la altura de cada tramo es proporcional a las órdenes afectadas.</p>
+  <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; align-items:end; margin-bottom:8px;">
+    <div>
+      <div style="text-align:center; margin-bottom:8px;">
+        <p style="font-size:14px; font-weight:500; margin:0;">Externo</p>
+        <p style="font-size:12px; color:var(--text-secondary); margin:0;">8 órdenes · 57%</p>
+      </div>
+      <div style="display:flex; flex-direction:column-reverse; gap:2px;">
+        <div class="seg" title="Proveedor de material: 4 órdenes, 14 días de atraso" style="height:160px; background:#eb6834; color:#fff; border-radius:0 0 8px 8px;">Proveedor de material (28,6%)</div>
+        <div class="seg" title="Galvanizado externo: 2 órdenes, 6 días de atraso" style="height:80px; background:#f4a77f; color:#3d2012;">Galvanizado externo (14,3%)</div>
+        <div class="seg" title="Cambios de ingeniería del cliente: 2 órdenes, 4 días de atraso" style="height:80px; background:#f8cdb8; color:#3d2012; border-radius:8px 8px 0 0;">Cambios de ingeniería del cliente (14,3%)</div>
+      </div>
+    </div>
+    <div>
+      <div style="text-align:center; margin-bottom:8px;">
+        <p style="font-size:14px; font-weight:500; margin:0;">Interno</p>
+        <p style="font-size:12px; color:var(--text-secondary); margin:0;">6 órdenes · 43%</p>
+      </div>
+      <div style="display:flex; flex-direction:column-reverse; gap:2px;">
+        <div class="seg" title="Capacidad saturada: 2 órdenes, 6 días de atraso" style="height:80px; background:#2a78d6; color:#fff; border-radius:0 0 8px 8px;">Capacidad saturada (14,3%)</div>
+        <div class="seg" title="Planos incompletos de ingeniería: 2 órdenes, 5 días de atraso" style="height:80px; background:#5b9be0; color:#0d2a4d;">Planos incompletos de ingeniería (14,3%)</div>
+        <div class="seg seg-s" title="Retrabajo por no conformidad: 1 orden, 2 días de atraso" style="height:40px; background:#93bbea; color:#0d2a4d;">Retrabajo por no conformidad (7,1%)</div>
+        <div class="seg seg-s" title="Falla de máquina: 1 orden, 2 días de atraso" style="height:40px; background:#c6dcf5; color:#0d2a4d; border-radius:8px 8px 0 0;">Falla de máquina (7,1%)</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;"><span style="font-weight:500; color:var(--text-primary);">Capacidad saturada:</span> el área no tenía horas libres y la orden esperó en cola.</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px;"><span style="font-weight:500; color:var(--text-primary);">Planos incompletos de ingeniería:</span> la orden llegó a planta sin la planimetría completa y esperó la corrección del departamento de ingeniería.</p>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Eficiencia y merma</p>
+  <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:16px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">OEE</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">78%</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+1,5 pts</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Merma acero</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">3,6%</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">-0,5 pts</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Merma inox</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">5,1%</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+0,7 pts</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">No conformidades</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Hallazgos de calidad registrados en octubre sobre las 164 órdenes del mes</p>
+  <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:12px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">No conformidades</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">23</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">13 maestranza · 10 fábrica</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Tasa por 100 órdenes</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">14,0</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">-3,2 vs sep · meta 10</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px; grid-column:span 2;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Costo de no calidad</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">$3,9 M</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">$34 por kg procesado</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Tasa de no conformidades por mes</p>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 6px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px solid #6250d6;"></span>No conformidades por 100 órdenes</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px dashed #eb6834;"></span>Meta (10)</span>
+  </div>
+  <div style="position:relative; width:100%; height:170px; margin-bottom:12px;">
+    <canvas id="ncChart" role="img" aria-label="Línea de la tasa de no conformidades por cada 100 órdenes, de enero a octubre, con una meta de 10. Octubre baja a 14,0 desde 17,2 en septiembre.">Tasa de no conformidades por 100 órdenes: enero 18,5, febrero 17,9, marzo 17,2, abril 18,1, mayo 16,4, junio 15,8, julio 16,9, agosto 15,1, septiembre 17,2, octubre 14,0. Meta 10.</canvas>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">No conformidades por causa</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">23 registradas en octubre, ordenadas de mayor a menor</p>
+  <div style="border:0.5px solid var(--border); border-radius:12px; background:var(--surface-2); padding:4px 12px; margin-bottom:16px;">
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Defecto de soldadura</span><span style="color:var(--text-secondary);">8 · 34,8%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:100%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+    </div>
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Dimensional fuera de tolerancia</span><span style="color:var(--text-secondary);">6 · 26,1%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:75%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+    </div>
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Terminación o galvanizado</span><span style="color:var(--text-secondary);">4 · 17,4%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:50%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+    </div>
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Material no conforme (proveedor)</span><span style="color:var(--text-secondary);">3 · 13,0%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:38%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+    </div>
+    <div style="padding:8px 0;">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Error o falta en planos</span><span style="color:var(--text-secondary);">2 · 8,7%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:25%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Toneladas procesadas por sección</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Toneladas por mes en maestranza y fábrica, de enero a octubre</p>
+  <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:12px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Total octubre</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">116 t</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+3,6% vs sep</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Maestranza</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">75 t</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+4,2% vs sep</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Fábrica</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">41 t</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+2,5% vs sep</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 6px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#2a78d6;"></span>Maestranza</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#1baf7a;"></span>Fábrica</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px dashed #eb6834;"></span>Meta mensual (110 t)</span>
+  </div>
+  <div style="position:relative; width:100%; height:200px; margin-bottom:6px;">
+    <canvas id="tonChart" role="img" aria-label="Barras apiladas de toneladas procesadas por mes en maestranza y fábrica, de enero a octubre, con una línea de meta de 110 toneladas. Octubre llega a 116 toneladas, 75 en maestranza y 41 en fábrica.">Toneladas por mes, maestranza y fábrica: enero 58 y 31, febrero 60 y 33, marzo 64 y 35, abril 62 y 34, mayo 67 y 37, junio 70 y 38, julio 66 y 36, agosto 69 y 39, septiembre 72 y 40, octubre 75 y 41.</canvas>
+  </div>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px;">Octubre supera la meta mensual por segundo mes seguido. Incluye la proyección al cierre del mes.</p>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Eficiencia según dotación</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Toneladas procesadas por persona de la dotación de cada sección</p>
+  <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:12px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Planta total</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">0,94 t</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+3,6% vs sep</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Maestranza</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">1,29 t</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+4,0% vs sep</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:10px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Fábrica</p>
+      <p style="font-size:20px; font-weight:500; margin:0;">0,62 t</p>
+      <p style="font-size:12px; color:var(--text-success); margin:4px 0 0;">+1,6% vs sep</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 6px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px solid #2a78d6;"></span>Maestranza</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:14px; height:0; border-top:2px solid #1baf7a;"></span>Fábrica</span>
+  </div>
+  <div style="position:relative; width:100%; height:190px; margin-bottom:6px;">
+    <canvas id="prodChart" role="img" aria-label="Líneas de toneladas por persona de la dotación en maestranza y fábrica, de enero a octubre. Maestranza sube de 1,04 a 1,29 y fábrica de 0,50 a 0,62.">Toneladas por persona, maestranza: 1,04, 1,07, 1,12, 1,09, 1,16, 1,21, 1,16, 1,19, 1,24, 1,29. Fábrica: 0,50, 0,53, 0,56, 0,53, 0,58, 0,58, 0,55, 0,59, 0,61, 0,62.</canvas>
+  </div>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px;">La dotación total es de 124 personas. Con las 7 personas con licencia, la dotación efectiva es de 113 y la productividad sube a 1,03 t por persona en planta.</p>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Uso de espacios productivos</p>
+  <div id="uso" style="border:0.5px solid var(--border); border-radius:12px; background:var(--surface-2); padding:4px 12px 8px; margin-bottom:16px;"></div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Calendario productivo (Gantt, 2 semanas)</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Órdenes por área, del lunes 26 de octubre al domingo 8 de noviembre. Cada barra es una orden con su número.</p>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 14px; margin:0 0 8px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#2a78d6;"></span>En plazo</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#eda100;"></span>En riesgo</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#e34948;"></span>Atrasada</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:var(--text-primary); transform:rotate(45deg);"></span>Entrega</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:rgba(42,120,214,0.2);"></span>Hoy</span>
+  </div>
+  <div id="gantt" style="border:0.5px solid var(--border); border-radius:12px; background:var(--surface-2); padding:6px 10px 6px; margin-bottom:6px;"></div>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">4812 Puente grúa · 4821 Galpón · 4825 Pisos metálicos · 4830 Tanque inox · 4833 Ejes y bujes · 4836 Barandas inox · 4840 Soportes inox · 4844 Nave 2</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 16px;">4 de 8 órdenes están en riesgo o atrasadas. Armado concentra 3 de ellas, por eso es el punto a reforzar en maestranza.</p>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Alertas</p>
+  <div style="display:grid; gap:8px; margin-bottom:16px;">
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-danger); color:var(--text-danger); font-size:13px;">Armado al 96% y con 3 órdenes en riesgo o atrasadas en el calendario: riesgo para las entregas de las próximas dos semanas.</div>
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-danger); color:var(--text-danger); font-size:13px;">Proveedor de material es la primera causa de atraso (4 órdenes, 28,6%): revisar fechas de compra de acero e inox.</div>
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-warning); color:var(--text-warning); font-size:13px;">No conformidades en 14 por cada 100 órdenes, sobre la meta de 10: el defecto de soldadura explica 35% de ellas.</div>
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-warning); color:var(--text-warning); font-size:13px;">Licencias suben a 7 personas (+2 vs septiembre) y 3 están en maestranza, donde armado ya está al 96%: evaluar reemplazos u horas extra.</div>
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-warning); color:var(--text-warning); font-size:13px;">Planos incompletos frenaron 2 órdenes (14,3%): revisar la planimetría completa antes de liberar la orden a planta.</div>
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-warning); color:var(--text-warning); font-size:13px;">Inox sube 19% en el año: revisar cotizaciones vigentes y cláusulas de reajuste.</div>
+    <div style="padding:10px 12px; border-radius:var(--radius); background:var(--bg-warning); color:var(--text-warning); font-size:13px;">Entregas bajo la meta por tres meses seguidos, con atraso promedio al alza.</div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 8px;">Personas</p>
+  <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:12px;">
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Días sin accidente</p>
+      <p id="diasSin" style="font-size:22px; font-weight:500; margin:0;">88 días</p>
+      <div style="height:4px; border-radius:2px; background:var(--surface-2); margin:6px 0 4px;"><div id="diasSinBar" style="width:62%; height:4px; border-radius:2px; background:#1baf7a;"></div></div>
+      <p style="font-size:12px; color:var(--text-secondary); margin:0;">Récord de planta: 142 días</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Dotación total</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">124</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:6px 0 0;">113 en planta hoy (91%)</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Con licencia médica</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">7 personas</p>
+      <p style="font-size:12px; color:var(--text-danger); margin:4px 0 0;">+2 vs septiembre · 5,6%</p>
+    </div>
+    <div style="background:var(--surface-1); border-radius:var(--radius); padding:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); margin:0 0 4px;">Días perdidos por licencia</p>
+      <p style="font-size:22px; font-weight:500; margin:0;">96 días</p>
+      <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">Acumulado de octubre</p>
+    </div>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Dotación por sección (hoy)</p>
+  <div style="display:flex; flex-wrap:wrap; gap:6px 14px; margin:0 0 8px; font-size:12px; color:var(--text-secondary);">
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#2a78d6;"></span>En planta</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#eda100;"></span>Con licencia</span>
+    <span style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:2px; background:#b5d3f3;"></span>Vacaciones o permiso</span>
+  </div>
+  <div style="margin-bottom:12px;">
+    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;"><span>Maestranza</span><span style="color:var(--text-secondary);">58 personas</span></div>
+    <div style="display:flex; height:22px; border-radius:6px; overflow:hidden; gap:2px;">
+      <div style="width:91.4%; background:#2a78d6; color:#fff; font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center;">53</div>
+      <div style="width:5.2%; background:#eda100;"></div>
+      <div style="width:3.4%; background:#b5d3f3;"></div>
+    </div>
+    <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">53 en planta · 3 con licencia · 2 con vacaciones o permiso</p>
+  </div>
+  <div style="margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;"><span>Fábrica</span><span style="color:var(--text-secondary);">66 personas</span></div>
+    <div style="display:flex; height:22px; border-radius:6px; overflow:hidden; gap:2px;">
+      <div style="width:90.9%; background:#2a78d6; color:#fff; font-size:12px; font-weight:500; display:flex; align-items:center; justify-content:center;">60</div>
+      <div style="width:6.1%; background:#eda100;"></div>
+      <div style="width:3%; background:#b5d3f3;"></div>
+    </div>
+    <p style="font-size:12px; color:var(--text-secondary); margin:4px 0 0;">60 en planta · 4 con licencia · 2 con vacaciones o permiso</p>
+  </div>
+
+  <p style="font-size:13px; font-weight:500; margin:0 0 2px;">Razones de licencias médicas</p>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">Días perdidos en octubre (96) por razón, con el número de personas</p>
+  <div style="border:0.5px solid var(--border); border-radius:12px; background:var(--surface-2); padding:4px 12px; margin-bottom:6px;">
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Traumatológica (accidente común)</span><span style="color:var(--text-secondary);">28 días · 29,2%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:100%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">1 persona</div>
+    </div>
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Postnatal</span><span style="color:var(--text-secondary);">26 días · 27,1%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:93%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">1 persona</div>
+    </div>
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Salud mental</span><span style="color:var(--text-secondary);">21 días · 21,9%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:75%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">1 persona</div>
+    </div>
+    <div style="padding:8px 0; border-bottom:0.5px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Enfermedad común</span><span style="color:var(--text-secondary);">18 días · 18,8%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:64%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">3 personas</div>
+    </div>
+    <div style="padding:8px 0;">
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span>Enfermedad grave del hijo menor</span><span style="color:var(--text-secondary);">3 días · 3,1%</span></div>
+      <div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:11%; height:6px; border-radius:3px; background:#6250d6;"></div></div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">1 persona</div>
+    </div>
+  </div>
+  <p style="font-size:12px; color:var(--text-secondary); margin:0;">Sin licencias por accidente del trabajo en el período, coherente con los días sin accidente.</p>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  var isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  var tick = '#898781';
+  var grid = isDark ? '#2c2c2a' : '#e1e0d9';
+  var c1 = isDark ? '#3987e5' : '#2a78d6';
+  var c2 = isDark ? '#d95926' : '#eb6834';
+  var c3 = isDark ? '#199e70' : '#1baf7a';
+  var c4 = isDark ? '#c98500' : '#eda100';
+  var c5 = isDark ? '#d55181' : '#e87ba4';
+  var c6 = isDark ? '#9085e9' : '#6250d6';
+  var surf = isDark ? '#1a1a19' : '#fcfcfb';
+  var meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct'];
+  function seg(label, color, vals) { return { label: label, data: vals, backgroundColor: color, borderColor: surf, borderWidth: 2, borderSkipped: false, maxBarThickness: 34 }; }
+  var nf = function(v, d){ return v.toLocaleString('es-CL', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+
+  // Días desde el 26 oct 2026 (inicio de la ventana del Gantt) hasta hoy
+  var hoyFecha = new Date();
+  var hoyDia = new Date(hoyFecha.getFullYear(), hoyFecha.getMonth(), hoyFecha.getDate());
+  var inicioGantt = new Date(2026, 9, 26);
+  var diffGantt = Math.round((hoyDia - inicioGantt) / 86400000);
+
+  // Días sin accidente: 88 el 27 oct 2026, avanza con el calendario
+  var diasSin = 88 + Math.max(0, diffGantt - 1);
+  document.getElementById('diasSin').textContent = diasSin + ' días';
+  document.getElementById('diasSinBar').style.width = Math.min(100, Math.round(diasSin / 142 * 100)) + '%';
+
+  new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Acero', 'Inox'],
+      datasets: [
+        seg('Material', c1, [1185, 4350]),
+        seg('Mano de obra', c2, [380, 780]),
+        seg('Energía y gas', c3, [90, 140]),
+        seg('Consumibles', c4, [70, 260]),
+        seg('Terminación', c5, [215, 180]),
+        seg('Indirectos', c6, [200, 240])
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c){ return c.dataset.label + ': $' + c.parsed.x.toLocaleString('es-CL') + '/kg'; } } } },
+      scales: {
+        x: { stacked: true, min: 0, max: 6500, grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, stepSize: 2000, callback: function(v){ return '$' + v.toLocaleString('es-CL'); } } },
+        y: { stacked: true, grid: { display: false }, ticks: { color: tick, font: { size: 12 } } }
+      }
+    }
+  });
+  new Chart(document.getElementById('insumosChart'), {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [
+        { label: 'Acero', data: [100,101,103,102,105,107,108,110,111,112], borderColor: c1, backgroundColor: c1, borderWidth: 2, pointRadius: 0, tension: 0.3 },
+        { label: 'Inox 304', data: [100,102,105,104,108,111,113,115,117,119], borderColor: c3, backgroundColor: c3, borderWidth: 2, pointRadius: 0, tension: 0.3 },
+        { label: 'Galvanizado', data: [100,100,101,102,102,103,104,105,105,106], borderColor: c2, backgroundColor: c2, borderWidth: 2, borderDash: [5,4], pointRadius: 0, tension: 0.3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, font: { size: 11 }, autoSkip: false } },
+        y: { min: 96, max: 122, grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, stepSize: 5 } }
+      }
+    }
+  });
+
+  var ncTasa = [18.5,17.9,17.2,18.1,16.4,15.8,16.9,15.1,17.2,14.0];
+  new Chart(document.getElementById('ncChart'), {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [
+        { label: 'No conformidades por 100 órdenes', data: ncTasa, borderColor: c6, backgroundColor: c6, borderWidth: 2, pointRadius: 3, tension: 0.25 },
+        { label: 'Meta', data: meses.map(function(){ return 10; }), borderColor: c2, borderDash: [5,4], borderWidth: 2, pointRadius: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: function(c){
+          return c.datasetIndex === 0 ? nf(c.parsed.y, 1) + ' no conformidades por 100 órdenes' : 'Meta: ' + c.parsed.y;
+        } } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, font: { size: 11 }, autoSkip: false } },
+        y: { min: 0, max: 24, grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, stepSize: 6 } }
+      }
+    }
+  });
+
+  var tonM = [58,60,64,62,67,70,66,69,72,75];
+  var tonF = [31,33,35,34,37,38,36,39,40,41];
+  new Chart(document.getElementById('tonChart'), {
+    data: {
+      labels: meses,
+      datasets: [
+        { type: 'bar', label: 'Maestranza', data: tonM, backgroundColor: c1, borderColor: surf, borderWidth: 2, borderSkipped: false, maxBarThickness: 26, stack: 'ton' },
+        { type: 'bar', label: 'Fábrica', data: tonF, backgroundColor: c3, borderColor: surf, borderWidth: 2, borderSkipped: false, borderRadius: { topLeft: 4, topRight: 4 }, maxBarThickness: 26, stack: 'ton' },
+        { type: 'line', label: 'Meta mensual', data: meses.map(function(){ return 110; }), borderColor: c2, borderDash: [5,4], borderWidth: 2, pointRadius: 0, stack: 'meta' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          label: function(c){ return c.dataset.label + ': ' + c.parsed.y + ' t'; },
+          footer: function(items){ var i = items[0].dataIndex; return 'Total: ' + (tonM[i] + tonF[i]) + ' t'; }
+        } }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: tick, font: { size: 11 }, autoSkip: false } },
+        y: { stacked: true, min: 0, max: 120, grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, stepSize: 30, callback: function(v){ return v + ' t'; } } }
+      }
+    }
+  });
+
+  var dotM = [56,56,57,57,58,58,57,58,58,58];
+  var dotF = [62,62,63,64,64,65,65,66,66,66];
+  var tpM = tonM.map(function(t, i){ return Math.round(t / dotM[i] * 100) / 100; });
+  var tpF = tonF.map(function(t, i){ return Math.round(t / dotF[i] * 100) / 100; });
+  new Chart(document.getElementById('prodChart'), {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [
+        { label: 'Maestranza', data: tpM, borderColor: c1, backgroundColor: c1, borderWidth: 2, pointRadius: 3, tension: 0.25 },
+        { label: 'Fábrica', data: tpF, borderColor: c3, backgroundColor: c3, borderWidth: 2, pointRadius: 3, tension: 0.25 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: {
+          label: function(c){
+            var dot = c.datasetIndex === 0 ? dotM[c.dataIndex] : dotF[c.dataIndex];
+            return c.dataset.label + ': ' + nf(c.parsed.y, 2) + ' t por persona (dotación ' + dot + ')';
+          }
+        } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, font: { size: 11 }, autoSkip: false } },
+        y: { min: 0, max: 1.5, grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, stepSize: 0.5, callback: function(v){ return nf(v, 1) + ' t'; } } }
+      }
+    }
+  });
+
+  var grupos = [
+    { g: 'Maestranza', items: [
+      { n: 'Dimensionado', u: 72 }, { n: 'Armado', u: 96, nota: 'cuello de botella' },
+      { n: 'Remate', u: 68 }, { n: 'Pisos', u: 64 } ] },
+    { g: 'Fábrica', items: [
+      { n: 'Corte CNC', u: 81 }, { n: 'Torno', u: 58 }, { n: 'Plegadora', u: 74 },
+      { n: 'Soldadura TIG 1', u: 84 }, { n: 'Soldadura TIG 2', u: 91, nota: 'cerca del límite' }, { n: 'Soldadura TIG 3', u: 70 } ] }
+  ];
+
+  var u = '';
+  grupos.forEach(function(gr){
+    u += '<div style="font-size:11px; font-weight:500; color:var(--text-secondary); margin:8px 0 2px;">' + gr.g + '</div>';
+    gr.items.forEach(function(it, k){
+      var color = it.u >= 95 ? '#e34948' : (it.u >= 88 ? '#eda100' : '#2a78d6');
+      var tcol = it.u >= 95 ? 'var(--text-danger)' : (it.u >= 88 ? 'var(--text-warning)' : 'var(--text-secondary)');
+      u += '<div style="padding:6px 0;' + (k < gr.items.length - 1 ? 'border-bottom:0.5px solid var(--border);' : '') + '">'
+         + '<div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px;"><span>' + it.n + '</span><span style="color:' + tcol + ';">' + it.u + '%' + (it.nota ? ' · ' + it.nota : '') + '</span></div>'
+         + '<div style="height:6px; border-radius:3px; background:var(--surface-1);"><div style="width:' + it.u + '%; height:6px; border-radius:3px; background:' + color + ';"></div></div></div>';
+    });
+  });
+  document.getElementById('uso').innerHTML = u;
+
+  // Gantt: ventana de 14 días desde lun 26 oct 2026; "hoy" se calcula con la fecha actual
+  var N = 14;
+  var HOY = (diffGantt >= 0 && diffGantt < N) ? diffGantt : -1;
+  var letras = ['L','M','M','J','V','S','D','L','M','M','J','V','S','D'];
+  var nums = [26,27,28,29,30,31,1,2,3,4,5,6,7,8];
+  var fechas = ['26 oct','27 oct','28 oct','29 oct','30 oct','31 oct','1 nov','2 nov','3 nov','4 nov','5 nov','6 nov','7 nov','8 nov'];
+  var colores = { plazo: '#2a78d6', riesgo: '#eda100', atrasada: '#e34948' };
+  var textos = { plazo: '#fff', riesgo: '#412402', atrasada: '#fff' };
+  var estados = { plazo: 'en plazo', riesgo: 'en riesgo', atrasada: 'atrasada' };
+  var ordenes = [
+    { c: '4812', n: 'Puente grúa',     e: 'atrasada', d: 0,  et: [['Armado',0,2], ['Remate',3,4]] },
+    { c: '4821', n: 'Galpón',          e: 'riesgo',   d: 6,  et: [['Dimensionado',0,1], ['Armado',3,5], ['Remate',6,7]] },
+    { c: '4825', n: 'Pisos metálicos', e: 'plazo',    d: 5,  et: [['Dimensionado',2,3], ['Pisos',4,5]] },
+    { c: '4830', n: 'Tanque inox',     e: 'riesgo',   d: 8,  et: [['Corte CNC',1,2], ['Plegadora',3,4], ['Soldadura TIG 2',5,9]] },
+    { c: '4833', n: 'Ejes y bujes',    e: 'plazo',    d: 6,  et: [['Torno',2,4]] },
+    { c: '4836', n: 'Barandas inox',   e: 'plazo',    d: 7,  et: [['Corte CNC',3,4], ['Soldadura TIG 3',5,7]] },
+    { c: '4840', n: 'Soportes inox',   e: 'plazo',    d: 11, et: [['Corte CNC',5,6], ['Plegadora',7,8], ['Soldadura TIG 1',9,10]] },
+    { c: '4844', n: 'Nave 2',          e: 'riesgo',   d: 12, et: [['Dimensionado',5,6], ['Armado',7,11], ['Remate',12,13]] }
+  ];
+  var porArea = {};
+  ordenes.forEach(function(o){
+    o.et.forEach(function(s, idx){
+      (porArea[s[0]] = porArea[s[0]] || []).push({ o: o, a: s[1], b: s[2], ultima: idx === o.et.length - 1 });
+    });
+  });
+  var pct = function(i){ return (i / N * 100) + '%'; };
+  var h = '';
+  h += '<div style="display:flex;"><div style="width:104px;flex:none;"></div><div style="flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));">'
+     + '<div style="font-size:11px;color:var(--text-secondary);padding:0 0 2px 2px;">26 oct – 1 nov</div>'
+     + '<div style="font-size:11px;color:var(--text-secondary);padding:0 0 2px 2px;">2 – 8 nov</div></div></div>';
+  h += '<div style="display:flex;"><div style="width:104px;flex:none;"></div><div class="g-days">';
+  for (var i = 0; i < N; i++) { h += '<div style="' + (i === HOY ? 'background:rgba(42,120,214,0.2);border-radius:4px 4px 0 0;color:var(--text-primary);font-weight:500;' : '') + '">' + letras[i] + '</div>'; }
+  h += '</div></div>';
+  h += '<div style="display:flex;margin-bottom:4px;"><div style="width:104px;flex:none;"></div><div class="g-days">';
+  for (var j = 0; j < N; j++) { h += '<div style="' + (j === HOY ? 'background:rgba(42,120,214,0.2);color:var(--text-primary);font-weight:500;' : '') + '">' + nums[j] + '</div>'; }
+  h += '</div></div>';
+  grupos.forEach(function(gr){
+    h += '<div class="g-sec">' + gr.g + ' · ' + gr.items.length + ' áreas</div>';
+    gr.items.forEach(function(ar){
+      h += '<div class="g-row"><div class="g-label">' + ar.n + '</div><div class="g-track">'
+         + (HOY >= 0 ? '<div class="g-bg" style="left:' + pct(HOY) + ';width:' + (100 / N) + '%;background:rgba(42,120,214,0.2);"></div>' : '')
+         + '<div class="g-bg" style="left:' + pct(5) + ';width:' + (200 / N) + '%;background:rgba(137,135,129,0.14);"></div>'
+         + '<div class="g-bg" style="left:' + pct(12) + ';width:' + (200 / N) + '%;background:rgba(137,135,129,0.14);"></div>'
+         + '<div class="g-bg" style="left:' + pct(7) + ';border-left:0.5px solid var(--border);"></div>';
+      (porArea[ar.n] || []).forEach(function(s){
+        var o = s.o;
+        h += '<div class="g-bar" title="OT ' + o.c + ' ' + o.n + ' · ' + estados[o.e] + ' · entrega ' + fechas[o.d] + '" style="background:' + colores[o.e] + ';color:' + textos[o.e] + ';left:' + pct(s.a) + ';width:calc(' + ((s.b - s.a + 1) / N * 100) + '% - 1px);">' + o.c + '</div>';
+        if (s.ultima) {
+          h += '<div style="position:absolute;top:12.5px;width:9px;height:9px;background:var(--text-primary);border:1.5px solid var(--surface-2);transform:rotate(45deg);left:calc(' + pct(o.d + 1) + ' - 5px);"></div>';
+        }
+      });
+      h += '</div></div>';
+    });
+  });
+  document.getElementById('gantt').innerHTML = h;
+</script>
+</body>
+</html>
